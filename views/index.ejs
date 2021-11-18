@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+
+<html lang = "en">
+        <head>
+                <meta charset="utf-8">
+                <meta name="viewport" content="width=device-width">
+                <title>PDGA 1000 Rated Rounds</title>
+		<link rel="icon" type="image/x-icon" href="images/pdga_icon.jpg">
+
+                <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+                <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+                <link rel="stylesheet" type="text/css" href="css/index.css">
+        </head>
+        <body>
+                <nav class="navbar navbar-light bg-light">
+                        <div class="navbar-brand">
+                                <img src="images/pdga_logo.png" alt="pdga logo">
+                        </div>
+                        <form class="form-inline my-2 my-lg-0" action="/query" method="POST">
+                                <input class="form-control mr-sm-2" type="number" placeholder="Input a PDGA Number" aria-label="Search" id="number" name="number" required>
+                                <button class="btn btn-outline-success my-2 my-sm-0" type="submit" id="submit">Submit</button>
+                        </form>
+                </nav>
+                <div class="data">
+                        
+                </div>
+        <script>
+                $(document).ready(() => {
+                        $(".data").html("<h2>Loading...</h2>");
+                        setTimeout(()=>{
+                        var xhttp = new XMLHttpRequest();
+                        xhttp.onreadystatechange = function() {
+                                // console.log(xhttp.response.replaceAll("'s ", "s ").replaceAll("s' ", "s ").replaceAll("'", '"').replace("O", '"O').replace('("', '(').replace('")', ')"').replaceAll(': u', ': ').replaceAll('\\', ' '))
+                                $(".data").html(createOutput(xhttp.response));
+                        };
+                        var url = "/data"
+                        xhttp.open("GET", url, true);
+                        xhttp.send();
+                        }, 2000)
+                })
+
+                function createOutput(jsonString){
+                        if (jsonString == null || jsonString == "") return '<h2>Enter a PDGA number to view all 1000-rated rounds for that player.</h2><h2>(suggested inputs: 99515, 27523, 8332, 57365, 37817)</h2>'
+                        else {
+                                try {
+                                        data = JSON.parse(jsonString.replaceAll("'s ", "s ").replaceAll("s' ", "s ").replaceAll("'", '"').replace("O", '"O').replace('("', '(').replace('")', ')"').replaceAll(': u', ': ').replaceAll('\\', ' ')) 
+                                }
+                                catch (error){
+                                        return "<h2>Loading...</h2>"
+                                }
+                                console.log(data)
+                                var array = data.data
+                                var name = array[0].name
+                                var number = data.id
+
+                                var output = '<table class="table"><caption><b>' + name + " #" + number + '</b>, 1000-rated rounds</caption></table><table class="table table-hover"><thead><tr><th scope="col">#</th><th scope="col">Date</th><th scope="col">Event</th><th scope="col">Rating</th></tr></thead><tbody>'
+                                var string = ''
+                                for (var i = 1; i < array.length; i++){
+                                        string = '<tr><th scrope="row">' + i + '</th><td>' + array[i].date + '</td><td>' + array[i].event + '</td><td>' + array[i].rating + '</td></tr>'
+                                        output += string
+                                }
+                                output += '</tbody></table>' 
+                                return output
+                        }
+                }
+        </script>
+        </body>
+</html>
